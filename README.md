@@ -44,4 +44,4 @@ After the crawling has finished, you can connect to the command port via telnet 
     
 ## License 
 
-This project is licensed under the MIT License - see the LICENSE.md file for details
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
