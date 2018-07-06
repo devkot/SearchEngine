@@ -25,7 +25,7 @@ int main(int argc, char **argv) {
     }
 
     // Get arguments
-    for (i=1;i<argc;i+=2){                  // iterate all flag (odd) arguments
+    for (i=1;i<argc;i+=2){                      // iterate all flag (odd) arguments
         if (!strcmp(argv[i],"-p")){             // if this is "-p" flag
             serving_port = atoi(argv[i+1]);     // next arg is serving port
             continue;
@@ -55,7 +55,6 @@ int main(int argc, char **argv) {
 
     pthread_t cons[numThreads], prod, comm;                     // declare threads
 
-    // Reusing code from e-class
     printf("Server is booting up...\n");
 
     initialize(&pool);                                          // Initialize pool and mutexes

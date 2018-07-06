@@ -24,20 +24,18 @@ extern pthread_cond_t cond_nonfull;
 extern pool_t pool;
 time_t start;
 
-// from eclass
 void initializePool(pool_t *pool) {
     pool->start = 0;
     pool->end   = -1;
     pool->count = 0;
 }
 
-// Place fd in the pool (eclass)
+// Place fd in the pool
 void place(pool_t *pool, char *url) {
 
     pthread_mutex_lock(&mtx);
 
     while (pool->count >= POOL_SIZE){
-//        printf("Pool is Full\n");
         pthread_cond_wait(&cond_nonfull, &mtx);
     }
     pool->end = (pool->end + 1) % POOL_SIZE;
@@ -48,14 +46,13 @@ void place(pool_t *pool, char *url) {
     pthread_mutex_unlock(&mtx);
 }
 
-// Get fd from the pool (from eclass)
+// Get fd from the pool
 char  *obtain(pool_t *pool) {
     char *url;
 
     pthread_mutex_lock(&mtx);
 
     while (pool->count <= 0){
-//        printf("Pool is Empty\n");
         ready++;
         pthread_cond_wait(&cond_nonempty, &mtx);
     }
@@ -77,7 +74,6 @@ void *producer(void *ptr) {
 
     time (&start);
 
-//    serving_port = *((int *) ptr);
 
     struct prod_args* prodArgs = (struct prod_args*) ptr;           // Get arguments
     command_port = prodArgs->port_c;
@@ -99,8 +95,6 @@ void *producer(void *ptr) {
 
     pthread_cond_signal(&cond_nonempty);
 
-    // TODO fork here
-
 
     if((lsock = socket( AF_INET, SOCK_STREAM, 0)) < 0)              // Create command socket
         perror_exit("socket");
@@ -121,10 +115,10 @@ void *producer(void *ptr) {
     if(listen(lsock, 5) != 0)
         perror_exit("listen");
     printf("Crawling in progress...\n");
-    usleep(5000000);                                      // Wait for 5 secs
-//    while(dirExists(saveDir) == -1){}
-//    while(pool.count > 0){}
-//    while(ready < prodArgs->numThreads){}               // Wait for dir to get created
+
+   while(dirExists(saveDir) == -1){}
+   while(pool.count > 0){}
+   while(ready < prodArgs->numThreads){}               		// Wait for dir to get created
 
     printf("Trying to create %s ...\n", prodArgs->saveDir);
     readSaveFolder(saveDir);                                // Populate docfile
@@ -134,9 +128,6 @@ void *producer(void *ptr) {
 
     docArray = prepareJobExec("docfile", prodArgs->numThreads, &nDocs);
 
-    // TODO distribute docs here
-    // TODO create more files
-
     printf("Crawler is ready to receive commands! <STATS, SHUTDOWN, SEARCH q1 q2...q10> via telnet\n");
     while(1){
         if((csock = accept(lsock, NULL, NULL)) < 0)      // Accept telnet connections
@@ -144,7 +135,6 @@ void *producer(void *ptr) {
 
         printf("Crawler received a telnet command...\n");
         bzero(telbuf, strlen(telbuf));
-        //TODO make permanent connection
         if((read(csock, telbuf, 20)) < 0)
             perror_exit("Reading request");
 
@@ -159,7 +149,7 @@ void *producer(void *ptr) {
             sprintf(stats, "Crawler up for %s, downloaded %d pages, %d bytes\n", getRunTime(runTime, start), pages, bytes);
             customWrite(csock, stats, strlen(stats));
         }
-        else if (!strcmp(command, "SHUTDOWN")){ // TODO something bugs here
+        else if (!strcmp(command, "SHUTDOWN")){ 
             bzero(stats, 200);
             sprintf(stats, "Server shutting down...\n");
             customWrite(csock, stats, 25);
@@ -175,10 +165,6 @@ void *producer(void *ptr) {
                 customWrite(csock, stats, 43);
             }
             writeQuery(telbuf + 7, "search", 4, fdIn, fdOut, csock);
-            //TODO send command
-            // TODO bigger buffers
-            // TODO telnet send back response with sprintf
-            // TODO communicate with pipes...hmmm?
         }
         else {
             bzero(stats, 200);
@@ -201,10 +187,7 @@ void *consumer(void *ptr) {
     port = prodArgs->port_s;                                                    // Avoid redundant parsing
     domain = prodArgs->domain;
     saveDir = (char *) malloc (strlen(prodArgs->saveDir) + 4);
-//    strcpy(saveDir, "./");
     strcat(saveDir, prodArgs->saveDir);
-//    strcat(saveDir, "/");
-
 
     if((hp = gethostbyname(prodArgs->domain)) == NULL){
         herror("gethostbyname");
@@ -417,7 +400,7 @@ char *searchUrl(char *inputFile, pool_t *pool){
         strcpy(fullpath, "save_dir");
         strcat(fullpath, finalUrl);                                                             // Pass relative path to access
 
-        if ((searchPool(pool, finalUrl) == 1) && ((!fileExist(fullpath)))) {   // Url doesnt exist anywhere
+        if ((searchPool(pool, finalUrl) == 1) && ((!fileExist(fullpath)))) {   					// Url doesnt exist anywhere
             place(pool, finalUrl);
         }
         if(inputFile != NULL)
@@ -455,7 +438,7 @@ char *stringReplace(char *string, char *output){
 void insertDocfile(char *path){
     FILE *file;
 
-    file = fopen("docfile", "a");                          // Create desired file
+    file = fopen("docfile", "a");                          	// Create desired file
 
     if(file == NULL){
         perror_exit("fopen");
@@ -467,7 +450,7 @@ void insertDocfile(char *path){
 
 }
 
-void readSaveFolder(char *path){ // Mr. Stamatopoulos' class notes
+void readSaveFolder(char *path){
     DIR *dp;
     struct dirent *dir;
     char *newName;
@@ -488,15 +471,6 @@ void readSaveFolder(char *path){ // Mr. Stamatopoulos' class notes
             strcat(newName, dir->d_name);
             strcat(newName, "/");
             insertDocfile(newName);
-//            strcat(newName, dir->d_name);
-//            if(!strstr(newName, ".html"))                   // Quick and smart way to determine if it's a file
-//                strcat(newName, "/");
-//
-//            if(strstr(newName, ".html"))                    // Populate docfile for search commands
-//                insertDocfile(newName);
-//
-//            if(!strstr(newName, ".html"))
-//                readSaveFolder(newName);                        // Find subfolders recursively
         }
         free(newName);
     }

@@ -20,20 +20,18 @@ extern pthread_cond_t cond_nonfull;
 extern pool_t pool;
 time_t start;
 
-// from eclass
 void initialize(pool_t *pool) {
     pool->start = 0;
     pool->end   = -1;
     pool->count = 0;
 }
 
-// Place fd in the pool (eclass)
+// Place fd in the pool
 void place(pool_t *pool, int fd) {
 
     pthread_mutex_lock(&mtx);
 
     while (pool->count >= POOL_SIZE){
-        //printf(">> Pool is Full\n");
         pthread_cond_wait(&cond_nonfull, &mtx);
     }
 
@@ -44,14 +42,13 @@ void place(pool_t *pool, int fd) {
     pthread_mutex_unlock(&mtx);
 }
 
-// Get fd from the pool (from eclass)
+// Get fd from the pool
 int obtain(pool_t *pool) {
     int fd = 0;
 
     pthread_mutex_lock(&mtx);
 
     while (pool->count <= 0){
-        //printf(">> Pool is Empty\n");
         pthread_cond_wait(&cond_nonempty, &mtx);
     }
     fd = pool->fd[pool->start];
@@ -210,7 +207,6 @@ void *command(void *ptr){
             perror_exit("accept");
 
         bzero(telbuf, strlen(telbuf));
-        //TODO make permanent connection
         if((read(csock, telbuf, 20)) < 0)
             perror_exit("Reading request");
 
@@ -325,7 +321,6 @@ int customWrite(int fd, char *payload, int remaining) {
     return b;
 }
 
-//TODO add milliseconds
 char *getRunTime(char *runTime, time_t start){
     int min, sec, hr, n, ms;
     time_t end;

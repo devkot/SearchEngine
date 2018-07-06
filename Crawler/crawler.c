@@ -76,7 +76,6 @@ int main(int argc, char **argv) {
     prodArgs->numThreads    = numThreads;
     prodArgs->saveDir       = saveDir;
 
-    // Reusing code from e-class
     printf("Crawler is starting up...\n");
 
     initializePool(&pool);                                          // Initialize pool and mutexes

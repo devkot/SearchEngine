@@ -13,7 +13,7 @@
 
 int alarmExpired = 0;
 
-void readFolder(char *path, TrieNode *trie, int *nWords, int *nChars, int *nLines){ // Mr. Stamatopoulos' class notes
+void readFolder(char *path, TrieNode *trie, int *nWords, int *nChars, int *nLines){
     DIR *dp;
     struct dirent *dir;
     char *newName;
@@ -81,7 +81,7 @@ int readFile(char *inputFile, TrieNode *trie, int *nWords, int *nChars, int *nLi
 
 }
 
-// performs the queries of the user, printing top k results
+// performs the queries of the user
 int searchQuery(char *query, TrieNode *root, int deadline, int fdOut){
 	char *word, *line, payload[MSGSIZE+1];
 	TrieNode *wordNode;
@@ -90,10 +90,6 @@ int searchQuery(char *query, TrieNode *root, int deadline, int fdOut){
 	PostingListNode *postingListNode;
 	int wordCounter = 0, wordFoundCounter = 0, numOfDocs = 0, numOfWords, queries = 0;
 
-	//alarmExpired = 0;
-	//alarm(deadline);
-
-    //printf("Query %s\n", query);
     numOfWords = countWords(query);       // count number of words that will be used for the query
 
     if (!numOfWords){
@@ -103,24 +99,24 @@ int searchQuery(char *query, TrieNode *root, int deadline, int fdOut){
     wordArray = (QueryWordInfoNode *) malloc(sizeof(QueryWordInfoNode) * numOfWords); // allocate at most 10 cells for this array
 
 	word = strtok(query, " \t");
-    while (wordCounter++ < numOfWords){                   // read every word of the query (up to 10 actually)
+    while (wordCounter++ < numOfWords){                         // read every word of the query (up to 10 actually)
         if (!isDuplicate(docHead, word)) {
             wordArray[wordFoundCounter].wordNode = wordNode = searchTrie(root, word);    // add word's trie node to our list
-            wordArray[wordFoundCounter++].word = word;           // add the word string to our list
+            wordArray[wordFoundCounter++].word = word;                                   // add the word string to our list
 
-            if (wordNode) {                                 // if word actually exists in trie
-                postingListNode = wordNode->postingList;    // get it's posting list
+            if (wordNode) {                                     // if word actually exists in trie
+                postingListNode = wordNode->postingList;        // get it's posting list
 
-                while (postingListNode) {                   // while there are nodes
+                while (postingListNode) {                       // while there are nodes
                     line = readLine(postingListNode->fileName, postingListNode->lineNumber);
                     docHead = addWordSearchNode(docHead, postingListNode->fileName, postingListNode->lineNumber, line,
                                                 &numOfDocs, word);
-                    //if (!alarmExpired) {
+                    
                     sprintf(payload, "Line: %d File: %s Text: %s", postingListNode->lineNumber, postingListNode->fileName, line);
                     writeBack(fdOut, payload);
                     queries++;
-                    //}
-                    postingListNode = postingListNode->next;// go to next node
+                    
+                    postingListNode = postingListNode->next;    // go to next node
                 }
             }
         }
@@ -137,8 +133,6 @@ int searchQuery(char *query, TrieNode *root, int deadline, int fdOut){
     free(wordArray);
     destroyWordSearchNodes(docHead);
 
-//    alarmExpired = 0;
-//    alarm(0);
     return queries;
 }
 
