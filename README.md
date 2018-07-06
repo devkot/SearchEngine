@@ -40,7 +40,7 @@ After the crawling has finished, you can connect to the command port via telnet 
     ```STATS, SEARCH word1 word2 ... word10, SHUTDOWN ```
     
 ## Authors
-    Devkot - University of Athens
+    Stylianos Kotanidis - University of Athens
     
 ## License 
 
