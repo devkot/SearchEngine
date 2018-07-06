@@ -18,6 +18,7 @@ While in the main folder in the project directory, run the makefile by typing ``
     
 ### Starting the server 
 ``` ./myhttpd -p serving_port -c command_port -t number_of_threads -d root_dir ```
+
     Serving and command port: the ports the server will be listening on (eg. 8080)
     Number_of_threads: the number of threads the server will execute in parallel
     root_dir: the directory specified in the web creator
