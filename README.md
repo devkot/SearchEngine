@@ -28,6 +28,7 @@ The server receives the following commands via telnet:
     
 ### Crawler
 ``` ./mycrawler -h host_or_IP -p port -c command_port -t num_of_threads -d save_dir starting_URL```
+
     host_or_IP: the domain name or the IP of the machine the server is running on
     port: the server's port
     command_port: the port on which to connect via telnet and query the crawler
@@ -38,3 +39,9 @@ The server receives the following commands via telnet:
 After the crawling has finished, you can connect to the command port via telnet and use the following commands:
     ```STATS, SEARCH word1 word2 ... word10, SHUTDOWN ```
     
+## Authors
+    Devkot - University of Athens
+    
+## License 
+
+This project is licensed under the MIT License - see the LICENSE.md file for details
